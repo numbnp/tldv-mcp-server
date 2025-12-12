@@ -43,6 +43,7 @@ Go in the repo.
           "args": [
               "run",
               "-i",
+              "--init",
               "--rm",        
               "-e",          
               "TLDV_API_KEY=<your-tldv-api-key>",
