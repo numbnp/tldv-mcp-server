@@ -11,6 +11,7 @@ import {
 } from './schemas';
 
 import { TldvResponse } from './types';
+import { Logger, logger as defaultLogger } from '../logger';
 import axios from 'axios';
 
 const BASE_URL = 'https://pasta.tldv.io/v1alpha1';
@@ -39,13 +40,15 @@ export class TldvApi {
   private apiKey: string;
   private baseUrl: string;
   private headers: any;
+  private logger: Logger;
 
   /**
    * Creates a new instance of the TLDV API client
    * @param config - Configuration object containing API key and optional base URL
+   * @param logger - Optional logger instance for dependency injection (defaults to singleton)
    * @throws {Error} If the configuration is invalid
    */
-  constructor(config: TldvConfig) {
+  constructor(config: TldvConfig, logger: Logger = defaultLogger) {
     const validatedConfig = TldvConfigSchema.parse(config);
     this.apiKey = validatedConfig.apiKey;
     this.baseUrl = BASE_URL;
@@ -53,6 +56,7 @@ export class TldvApi {
       'x-api-key': this.apiKey,
       'Content-Type': 'application/json',
     };
+    this.logger = logger;
   }
 
   /**
@@ -67,6 +71,8 @@ export class TldvApi {
     retryCount = 0,
     maxRetries = MAX_RETRIES
   ): Promise<TldvResponse<T>> {
+    this.logger.debug(`API Request: ${endpoint}`, { retryCount });
+    
     try {
       const response = await axios(`${this.baseUrl}${endpoint}`, {
         ...options,
@@ -109,6 +115,8 @@ export class TldvApi {
         // Calculate exponential backoff delay: 2^retryCount * 1000ms (1s, 2s, 4s, etc.)
         const delay = Math.min(RETRY_DELAY * 2 ** retryCount, MAX_RETRY_DELAY);
         
+        this.logger.warn(`Retrying request to ${endpoint}`, { retryCount: retryCount + 1, delay });
+        
         // Wait before retrying
         await new Promise(resolve => setTimeout(resolve, delay));
         
@@ -116,9 +124,12 @@ export class TldvApi {
         return this.request<T>(endpoint, options, retryCount + 1, maxRetries);
       }
       
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      this.logger.error(`API request failed: ${endpoint}`, { error: errorMessage });
+      
       return {
         data: null as T,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error: errorMessage,
       };
     }
   }

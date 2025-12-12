@@ -2,18 +2,19 @@ import { GetMeetingsParamsSchema } from "./api/schemas";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { TldvApi } from "./api/tldv-api";
+import { logger } from "./logger";
 import dotenv from "dotenv";
 import z from "zod";
 
 dotenv.config();
 
 async function main() {
-  console.info({ name: "Initializing TLDV API..." });
+  logger.info("Initializing TLDV API...");
   const tldvApi = new TldvApi({
     apiKey: process.env.TLDV_API_KEY,
   });
   
-  console.info({ name: "Starting MCP server..." });
+  logger.info("Starting MCP server...");
   
   const tools = {
     "get-meeting-metadata": {
@@ -102,14 +103,19 @@ async function main() {
     }
   );
 
-  console.info({ message: "Initializing StdioServerTransport..." });
+  logger.info("Initializing StdioServerTransport...");
   const transport = new StdioServerTransport();
 
-  console.info({ message: "Connecting to MCP server..." });
+  logger.info("Connecting to MCP server...");
   await server.connect(transport);
+  
+  // Enable MCP logging API now that we're connected
+  logger.setServer(server);
+  
+  logger.info("MCP server connected and ready!");
 }
 
 main().catch((error) => {
-  console.error({ message: "Fatal error in main():", error });
-//   process.exit(1);
+  logger.error("Fatal error in main()", error);
+  process.exit(1);
 });
