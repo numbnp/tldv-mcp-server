@@ -37,21 +37,21 @@ Go in the repo.
 
     ```json
     {
-        "mcpServers": {
-          "tldv": {
-            "command": "docker",
-            "args": [
-                "run",
-
-                "--rm",        
-                "--init",      
-                "-e",          
-                "TLDV_API_KEY=<your-tldv-api-key>",
-                "tldv-mcp-server"
-            ],
-          }
+      "mcpServers": {
+        "tldv": {
+          "command": "docker",
+          "args": [
+              "run",
+              "-i",
+              "--rm",        
+              "-e",          
+              "TLDV_API_KEY=<your-tldv-api-key>",
+              "tldv-mcp-server"
+          ]
         }
       }
+    }
+
     ```
     Replace `<your-tldv-api-key>` with your actual tl;dv API key.
 
