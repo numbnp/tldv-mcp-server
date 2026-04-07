@@ -1,5 +1,5 @@
 {
-    "name": "tldv-mcp",
+    "name": "@numbnp/tldv-mcp",
     "version": "1.0.0",
     "description": "TLDR API MCP Server",
     "main": "dist/index.js",

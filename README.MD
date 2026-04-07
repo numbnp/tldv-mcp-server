@@ -33,7 +33,7 @@ No installation required. Configure your MCP client:
   "mcpServers": {
     "tldv": {
       "command": "npx",
-      "args": ["-y", "tldv-mcp"],
+      "args": ["-y", "@numbnp/tldv-mcp"],
       "env": {
         "TLDV_API_KEY": "your_tldv_api_key"
       }
